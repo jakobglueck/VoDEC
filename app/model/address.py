@@ -47,4 +47,4 @@ class AddressModel(BaseModel):
             raise ValueError("A city name cannot consist only of numbers.")
             
         return v
-    
+        
