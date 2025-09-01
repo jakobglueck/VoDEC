@@ -1,0 +1,49 @@
+
+# Compiled bytecode files and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Dependency caches
+.pip-cache/
+pip-cache/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build and distribution artifacts
+dist/
+build/
+*.egg-info/
+
+
+# Sensitive configuration files
+.env
+
+# or delete the following lines.
+uploads/
+downloads/
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains (PyCharm, etc.)
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
