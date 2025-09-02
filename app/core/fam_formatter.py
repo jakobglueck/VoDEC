@@ -173,3 +173,42 @@ def validate_lanr_column(lanr: pd.Series) -> pd.Series:
 
         return lanr_str
     return lanr.apply(validate_single_lanr)
+
+def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are are valid doctor titles.
+    """
+
+    def validate_single_doctor_title(doctor_title):
+
+        if pd.isna(doctor_title) or not str(doctor_title).strip():
+            return None 
+
+        check_str = str(doctor_title).lower().replace('.', '').replace(' ', '')
+
+        dr_keywords = ('dr', 'doctor', 'mudr', 'md', 'mbbs', 'dott', 'doktor')
+        prof_keywords = ('prof', 'professor')
+        pd_keywords = ('pd', 'privatdozent', 'priv')
+        drdr_keywords = ('drdr', 'doktordoktor')
+
+        has_dr = any(kw in check_str for kw in dr_keywords)
+        has_prof = any(kw in check_str for kw in prof_keywords)
+        has_pd = any(kw in check_str for kw in pd_keywords)
+        has_drdr = any(kw in check_str for kw in drdr_keywords)
+
+        if has_prof:
+            if has_drdr:
+                return "Prof. Dr. Dr."
+            elif has_dr:
+                return "Prof. Dr."
+        elif has_pd:
+            if has_drdr:
+                return "PD Dr. Dr."
+            elif has_dr:
+                return "PD Dr."
+        elif has_drdr:
+            return "Dr. Dr."
+        elif has_dr:
+            return "Dr."
+        return None
+    return doctor_title.apply(validate_single_doctor_title)
