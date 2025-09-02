@@ -54,27 +54,6 @@ def format_fam_data(raw_df: pd.DataFrame) -> pd.DataFrame:
     
     return final_df
 
-def validate_plz_column(plz_column: pd.Series) -> pd.Series:
-    """
-    Validates a column to ensure all entries are valid German postal codes.
-    A valid PLZ is a string containing exactly 5 digits.
-    Invalid or empty entries are converted to None.
-    """
-    
-    def validate_single_plz(plz):
-        if pd.isna(plz):
-            return None
-        plz_str = str(plz).split('.')[0].strip()
-  
-        if len(plz_str) == 4 and plz_str.isdigit():
-            plz_str = "0" + plz_str
-
-        if len(plz_str) == 5 and plz_str.isdigit():
-            return plz_str
-        else:
-            return None
-    return plz_column.apply(validate_single_plz)
-
 def validate_medicine_name_column(medicine_name: pd.Series) -> pd.Series:
     """
     Validates a column to ensure all entries are in the right format like a Grosse2 excel function.
@@ -151,29 +130,6 @@ def validate_amount_column(amount: pd.Series) -> pd.Series:
             return None
     return amount.apply(validate_single_amount)
 
-def validate_lanr_column(lanr: pd.Series) -> pd.Series:
-    """
-    Validates a column to ensure all entries are are valid lanr(more than 5 digits and no consecutive identical digits).
-    """
-
-    def validate_single_lanr(lanr):
-        if pd.isna(lanr):
-            return None
-        
-        lanr_str = str(lanr).split('.')[0].strip()
-        
-        if not lanr_str.isdigit():
-            return None
-
-        if len(lanr_str) < 6:
-            return None
-        
-        if re.search(r'(\d)\1{3,}', lanr_str):
-            return None 
-
-        return lanr_str
-    return lanr.apply(validate_single_lanr)
-
 def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
     """
     Validates a column to ensure all entries are are valid doctor titles.
@@ -212,37 +168,3 @@ def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
             return "Dr."
         return None
     return doctor_title.apply(validate_single_doctor_title)
-
-def validate_doctor_first_name_column(doctor_first_name: pd.Series) -> pd.Series:
-    """
-    Validates a column to ensure all entries are are real names.
-    """
-
-    def validate_single_doctor_first_name(doctor_first_name):
-        if pd.isna(doctor_first_name):
-            return None
-        
-        cleaned_name = str(doctor_first_name).title()
-        
-        if str(doctor_first_name).strip().isdigit():
-            return None
-            
-        return cleaned_name
-    return doctor_first_name.apply(validate_single_doctor_first_name)
-
-def validate_doctor_last_name_column(doctor_last_name: pd.Series) -> pd.Series:
-    """
-    Validates a column to ensure all entries are are real names.
-    """
-
-    def validate_single_doctor_last_name(doctor_last_name):
-        if pd.isna(doctor_last_name):
-            return None
-        
-        cleaned_name = str(doctor_last_name).title()
-        
-        if str(doctor_last_name).strip().isdigit():
-            return None
-            
-        return cleaned_name
-    return doctor_last_name.apply(validate_single_doctor_last_name)
