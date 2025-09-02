@@ -3,17 +3,17 @@ from pydantic import BaseModel, field_validator
 from decimal import Decimal
 
 class TMModel(BaseModel):
-    # --- Required Fields (Pflichtangaben) ---
+    # --- Required Fields ---
     vo_id: str
     charge_nr: str
     position: int
     pzn: str
     am_name: str
-    factor_indicator: str
     quantity_factor: float
     partial_quantity_price: Decimal
     
     # --- Optional Fields ---
+    factor_indicator:  Optional[str] = None
     price_indicator: Optional[str] = None
     package_size: Optional[str] = None
     unit_of_measurement: Optional[str] = None
@@ -22,7 +22,7 @@ class TMModel(BaseModel):
     atc_name: Optional[str] = None
 
 
-    @field_validator('charge_nr', 'am_name', 'factor_indicator')
+    @field_validator('charge_nr', 'am_name')
     @classmethod
     def validate_required_text(cls, v: str):
         if not v or not v.strip():
@@ -40,7 +40,7 @@ class TMModel(BaseModel):
 
     @field_validator(
         'price_indicator', 'package_size', 'unit_of_measurement', 
-        'presentation_form', 'atc_code', 'atc_name'
+        'presentation_form', 'atc_code', 'atc_name', 'factor_indicator'
     )
     @classmethod
     def validate_optional_text(cls, v: Optional[str]):
@@ -48,7 +48,7 @@ class TMModel(BaseModel):
             raise ValueError("Field cannot be empty if provided.")
         return v
 
-    @field_validator('position', 'factor_indicator', 'partial_quantity_price')
+    @field_validator('position', 'partial_quantity_price')
     @classmethod
     def validate_positive_number(cls, v):
         if v is None:
