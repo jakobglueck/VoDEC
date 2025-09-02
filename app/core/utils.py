@@ -92,25 +92,22 @@ def validate_city_column(city_column: pd.Series) -> pd.Series:
         return city_str.title()
     return city_column.apply(validate_single_plz)
 
-def validate_name_attachment_column(name_attachment: pd.Series) -> pd.Series:
-    """Validates and cleans a column of city names (for doctors, pharmacies)."""
-
-    keywords = [
-        "e.K.", "e. K.", "e.K ", "e. K", "B.V.", "PE", "Filiale", "e.Kfm",
-        "e. Kfm", "e.Kfr.", "Zytostatika", "eK", "OHG", "oHG", "gGmbH", 
-        "GmbH", "Inh.", "Inhaber"
-    ]
+def remove_keywords_from_column(name_column: pd.Series, keywords: list[str]) -> pd.Series:
+    """
+    Generic utility to remove a list of specified keywords from a Series of strings.
+    """
 
     pattern = r'\b(' + '|'.join(re.escape(kw) for kw in keywords) + r')\b'
 
-
-    def validate_single_name_attachment(name_attachment):
-        if pd.isna(name_attachment):
+    def clean_single_entry(name):
+        if pd.isna(name):
             return None
 
-        cleaned_name = re.sub(pattern, '', str(name_attachment), flags=re.IGNORECASE)
-
+        cleaned_name = re.sub(pattern, '', str(name), flags=re.IGNORECASE)
+      
+        cleaned_name = " ".join(cleaned_name.split()) 
         cleaned_name = cleaned_name.strip(' ,-')
         
         return cleaned_name
-    return name_attachment.apply(validate_single_name_attachment)
+            
+    return name_column.apply(clean_single_entry)

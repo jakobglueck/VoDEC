@@ -4,6 +4,7 @@ import re
 import pandas as pd
 
 from model.fam import FAMModel
+from core import utils 
 
 FAM_HEADER_MAPPING = {
     "kasse": "health_insurance_company",
@@ -168,3 +169,27 @@ def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
             return "Dr."
         return None
     return doctor_title.apply(validate_single_doctor_title)
+
+def format_pharmacy_name_column(name_column: pd.Series) -> pd.Series:
+    """Cleans the pharmacy name column by removing business suffixes."""
+    PHARMACY_NAME_KEYWORDS = [
+    "e.K.", "e. K.", "e.K ", "e. K", "B.V.", "PE", "Filiale", "e.Kfm",
+    "e. Kfm", "e.Kfr.", "Zytostatika", "eK", "OHG", "oHG", "gGmbH", 
+    "GmbH", "Inh.", "Inhaber"
+    ]
+
+    return utils.remove_keywords_from_column(name_column, keywords=PHARMACY_NAME_KEYWORDS)
+
+def format_bs_name_column(name_column: pd.Series) -> pd.Series:
+    """Cleans the bs_name column by removing various attachments."""
+
+    BS_NAME_KEYWORDS = [
+    "gGmbH", "GmbH", "e.V.", "e. V.", "e V", "e.V", "eV", "B.V.", "OHG",
+    "e.Kfm", "SAPV-Team", "e. G.", "gKAöR", "§117 SGBV", "eG", "&Co.KG",
+    "& Co.KG", "mbH", "+ Co.KG", "GbR", "(Entlassungsmanagement 750200598)",
+    "G:", ",Entlassungsmanagement", "Entlassungsmanagement", "UG", "NULL", "#",
+    "N/A", "Pseudo Pseudo-Arzt", "Pseudoarzt KH-Entlassungsmanagement", "#NV",
+    "ungültiger Wert", "et. al."
+    ]
+    
+    return utils.remove_keywords_from_column(name_column, keywords=BS_NAME_KEYWORDS)
