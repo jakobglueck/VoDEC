@@ -61,3 +61,34 @@ def validate_id_number_column(id_column: pd.Series, required_length: int) -> pd.
         return id_str
             
     return id_column.apply(validate_single_id)
+
+def validate_street_column(street_column: pd.Series) -> pd.Series:
+    """Validates and cleans a column of street names (for doctors, pharmacies)."""
+    def validate_single_plz(street):
+        if pd.isna(street) or not str(street).strip():
+            return None
+
+        street_str = str(street).strip()
+        
+        if street_str.isdigit():
+            return None
+        
+        street_str = re.sub(r'\b(strasse|straße|trasse)\b', 'str.', street_str, flags=re.IGNORECASE)
+        
+        return street_str
+    return street_column.apply(validate_single_plz)
+
+def validate_city_column(city_column: pd.Series) -> pd.Series:
+    """Validates and cleans a column of city names (for doctors, pharmacies)."""
+    def validate_single_plz(city):
+        if pd.isna(city) or not str(city).strip():
+            return None
+
+        city_str = str(city).strip()
+
+        if city_str.isdigit():
+            return None
+
+        return city_str.title()
+    return city_column.apply(validate_single_plz)
+
