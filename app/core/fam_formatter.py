@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import pandas as pd
 
 from model.fam import FAMModel
@@ -51,3 +52,59 @@ def format_fam_data(raw_df: pd.DataFrame) -> pd.DataFrame:
     final_df = formatted_df[final_columns_to_keep]
     
     return final_df
+
+def validate_plz_column(plz_column: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are valid German postal codes.
+    A valid PLZ is a string containing exactly 5 digits.
+    Invalid or empty entries are converted to None.
+    """
+    
+    def validate_single_plz(plz):
+        if pd.isna(plz):
+            return None
+        plz_str = str(plz).split('.')[0].strip()
+  
+        if len(plz_str) == 4 and plz_str.isdigit():
+            plz_str = "0" + plz_str
+
+        if len(plz_str) == 5 and plz_str.isdigit():
+            return plz_str
+        else:
+            return None
+    return plz_column.apply(validate_single_plz)
+
+def validate_medicine_name_column(medicine_name: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are in the right format like a Grosse2 excel function.
+    """
+
+    def validate_single_medicine_name(medicine_name):
+        if pd.isna(medicine_name) or not str(medicine_name).strip():
+            return None
+        
+        return str(medicine_name).title()
+    return medicine_name.apply(validate_single_medicine_name)
+
+def validate_prescription_date_column(prescription_date: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are in the right time period.
+    """
+
+    def validate_prescription_date_name(prescription_date):
+
+        parsed_dates = pd.to_datetime(prescription_date, errors='coerce', dayfirst=True)
+
+        today = pd.Timestamp.now()
+        two_years_ago = today - pd.DateOffset(years=1)
+
+        parsed_dates.loc[parsed_dates < two_years_ago] = pd.NaT
+        parsed_dates.loc[parsed_dates > today] = pd.NaT
+
+        formatted_dates = parsed_dates.dt.strftime('%d.%m.%Y')
+
+        formatted_dates = formatted_dates.replace({pd.NaT: None})
+
+        return formatted_dates
+    return prescription_date.apply(validate_prescription_date_name)
+
