@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import re
 import pandas as pd
 
 from model.fam import FAMModel
@@ -110,7 +111,7 @@ def validate_prescription_date_column(prescription_date: pd.Series) -> pd.Series
 
 def validate_medicine_price_column(medicine_price: pd.Series) -> pd.Series:
     """
-    Validates a column to ensure all entries are in the right format like a Grosse2 excel function.
+    Validates a column to ensure all entries are real prices with greater than 0.
     """
 
     def validate_medicine_price(medicine_price):
@@ -131,3 +132,44 @@ def validate_medicine_price_column(medicine_price: pd.Series) -> pd.Series:
             return None    
     return medicine_price.apply(validate_medicine_price)
 
+def validate_amount_column(amount: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are in greater 0.
+    """
+
+    def validate_single_amount(amount):
+        if pd.isna(amount):
+            return None
+        try:
+            amount_int = int(float(amount))
+        except (ValueError, TypeError):
+            return None
+
+        if amount_int >= 1:
+            return amount_int
+        else:
+            return None
+    return amount.apply(validate_single_amount)
+
+def validate_lanr_column(lanr: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are are valid lanr(more than 5 digits and no consecutive identical digits).
+    """
+
+    def validate_single_lanr(lanr):
+        if pd.isna(lanr):
+            return None
+        
+        lanr_str = str(lanr).split('.')[0].strip()
+        
+        if not lanr_str.isdigit():
+            return None
+
+        if len(lanr_str) < 6:
+            return None
+        
+        if re.search(r'(\d)\1{3,}', lanr_str):
+            return None 
+
+        return lanr_str
+    return lanr.apply(validate_single_lanr)
