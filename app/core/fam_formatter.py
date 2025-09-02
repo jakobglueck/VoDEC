@@ -212,3 +212,37 @@ def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
             return "Dr."
         return None
     return doctor_title.apply(validate_single_doctor_title)
+
+def validate_doctor_first_name_column(doctor_first_name: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are are real names.
+    """
+
+    def validate_single_doctor_first_name(doctor_first_name):
+        if pd.isna(doctor_first_name):
+            return None
+        
+        cleaned_name = str(doctor_first_name).title()
+        
+        if str(doctor_first_name).strip().isdigit():
+            return None
+            
+        return cleaned_name
+    return doctor_first_name.apply(validate_single_doctor_first_name)
+
+def validate_doctor_last_name_column(doctor_last_name: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are are real names.
+    """
+
+    def validate_single_doctor_last_name(doctor_last_name):
+        if pd.isna(doctor_last_name):
+            return None
+        
+        cleaned_name = str(doctor_last_name).title()
+        
+        if str(doctor_last_name).strip().isdigit():
+            return None
+            
+        return cleaned_name
+    return doctor_last_name.apply(validate_single_doctor_last_name)
