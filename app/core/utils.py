@@ -92,3 +92,25 @@ def validate_city_column(city_column: pd.Series) -> pd.Series:
         return city_str.title()
     return city_column.apply(validate_single_plz)
 
+def validate_name_attachment_column(name_attachment: pd.Series) -> pd.Series:
+    """Validates and cleans a column of city names (for doctors, pharmacies)."""
+
+    keywords = [
+        "e.K.", "e. K.", "e.K ", "e. K", "B.V.", "PE", "Filiale", "e.Kfm",
+        "e. Kfm", "e.Kfr.", "Zytostatika", "eK", "OHG", "oHG", "gGmbH", 
+        "GmbH", "Inh.", "Inhaber"
+    ]
+
+    pattern = r'\b(' + '|'.join(re.escape(kw) for kw in keywords) + r')\b'
+
+
+    def validate_single_name_attachment(name_attachment):
+        if pd.isna(name_attachment):
+            return None
+
+        cleaned_name = re.sub(pattern, '', str(name_attachment), flags=re.IGNORECASE)
+
+        cleaned_name = cleaned_name.strip(' ,-')
+        
+        return cleaned_name
+    return name_attachment.apply(validate_single_name_attachment)
