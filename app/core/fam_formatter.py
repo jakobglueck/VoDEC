@@ -91,7 +91,7 @@ def validate_prescription_date_column(prescription_date: pd.Series) -> pd.Series
     Validates a column to ensure all entries are in the right time period.
     """
 
-    def validate_prescription_date_name(prescription_date):
+    def validate_prescription_date(prescription_date):
 
         parsed_dates = pd.to_datetime(prescription_date, errors='coerce', dayfirst=True)
 
@@ -106,5 +106,28 @@ def validate_prescription_date_column(prescription_date: pd.Series) -> pd.Series
         formatted_dates = formatted_dates.replace({pd.NaT: None})
 
         return formatted_dates
-    return prescription_date.apply(validate_prescription_date_name)
+    return prescription_date.apply(validate_prescription_date)
+
+def validate_medicine_price_column(medicine_price: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure all entries are in the right format like a Grosse2 excel function.
+    """
+
+    def validate_medicine_price(medicine_price):
+        if pd.isna(medicine_price):
+                    return None
+
+        price_str = str(medicine_price).replace('€', '').strip()
+        price_str = price_str.replace('.', '').replace(',', '.')
+        
+        try:
+            price_float = float(price_str)
+
+            if price_float > 0:
+                return price_float
+            else:
+                return None
+        except (ValueError, TypeError):
+            return None    
+    return medicine_price.apply(validate_medicine_price)
 
