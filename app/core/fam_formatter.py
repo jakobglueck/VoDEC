@@ -253,3 +253,22 @@ def format_pharmacy_owner_column(pharmacy_owner_column: pd.Series) -> pd.Series:
     )
 
     return cleaned_column.str.title()
+
+def validate_ihpe_units_column(ihpe_units: pd.Series) -> pd.Series:
+    """
+    Validates a column to ensure that entries are None or whole number.
+    """
+
+    def validate_single_ihpe_units(ihpe_units):
+        if pd.isna(ihpe_units):
+            return None
+        try:
+           ihpe_units_int = int(ihpe_units)
+        except (ValueError, TypeError):
+            return None
+
+        if ihpe_units_int >= 0:
+            return ihpe_units_int
+        else:
+            return None
+    return ihpe_units.apply(validate_single_ihpe_units)
