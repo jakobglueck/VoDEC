@@ -3,27 +3,26 @@ from pydantic import BaseModel, field_validator
 from decimal import Decimal
 
 class TMModel(BaseModel):
-    # --- Required Fields (Pflichtangaben) ---
+    # --- Required Fields ---
     vo_id: str
     charge_nr: str
     position: int
     pzn: str
-    bezeichnung: str
-    faktorenkennzeichen: str
-    mengenfaktor: float
-    teilmengen_preis: Decimal
+    am_name: str
+    quantity_factor: float
+    partial_quantity_price: Decimal
     
     # --- Optional Fields ---
-    preiskennzeichen: Optional[str] = None
-    packungsgroesse: Optional[str] = None
-    mengeneinheit: Optional[str] = None
-    darreichungsform: Optional[str] = None
+    factor_indicator:  Optional[str] = None
+    price_indicator: Optional[str] = None
+    package_size: Optional[str] = None
+    unit_of_measurement: Optional[str] = None
+    presentation_form: Optional[str] = None
     atc_code: Optional[str] = None
-    atc_bezeichnung: Optional[str] = None
+    atc_name: Optional[str] = None
 
-    # --- Reusable Validators ---
 
-    @field_validator('charge_nr', 'bezeichnung', 'faktorenkennzeichen')
+    @field_validator('charge_nr', 'am_name')
     @classmethod
     def validate_required_text(cls, v: str):
         if not v or not v.strip():
@@ -40,8 +39,8 @@ class TMModel(BaseModel):
         return v
 
     @field_validator(
-        'preiskennzeichen', 'packungsgroesse', 'mengeneinheit', 
-        'darreichungsform', 'atc_code', 'atc_bezeichnung'
+        'price_indicator', 'package_size', 'unit_of_measurement', 
+        'presentation_form', 'atc_code', 'atc_name', 'factor_indicator'
     )
     @classmethod
     def validate_optional_text(cls, v: Optional[str]):
@@ -49,7 +48,7 @@ class TMModel(BaseModel):
             raise ValueError("Field cannot be empty if provided.")
         return v
 
-    @field_validator('position', 'mengenfaktor', 'teilmengen_preis')
+    @field_validator('position', 'partial_quantity_price')
     @classmethod
     def validate_positive_number(cls, v):
         if v is None:
@@ -59,7 +58,7 @@ class TMModel(BaseModel):
             raise ValueError("Value must be positive and greater than zero.")
         return v
     
-    @field_validator('mengenfaktor')
+    @field_validator('factor_indicator')
     @classmethod
     def validate_four_decimal_places(cls, v: Decimal) -> Decimal:
 
