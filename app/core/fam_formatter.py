@@ -215,3 +215,25 @@ def format_doctor_specialization_column(doctor_specialization_column: pd.Series)
     )
 
     return cleaned_column.str.title()
+
+def sync_receipt_and_vo_ids(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Synchronizes 'receipt_id' and 'vo_id' for each row.
+    If one is missing, it's filled with the value of the other.
+    """
+    def sync_ids_for_single_row(row):
+        receipt_id = row['receipt_id']
+        vo_id = row['vo_id']
+
+        receipt_is_missing = pd.isna(receipt_id)
+        vo_is_missing = pd.isna(vo_id)
+
+        if receipt_is_missing and not vo_is_missing:
+            row['receipt_id'] = vo_id
+        elif not receipt_is_missing and vo_is_missing:
+            row['vo_id'] = receipt_id
+
+        return row
+
+    return df.apply(sync_ids_for_single_row, axis=1)
+
