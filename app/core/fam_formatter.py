@@ -156,12 +156,12 @@ def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
         if has_prof:
             if has_drdr:
                 return "Prof. Dr. Dr."
-            elif has_dr:
+            else:
                 return "Prof. Dr."
         elif has_pd:
             if has_drdr:
                 return "PD Dr. Dr."
-            elif has_dr:
+            else:
                 return "PD Dr."
         elif has_drdr:
             return "Dr. Dr."
