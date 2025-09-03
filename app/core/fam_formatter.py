@@ -193,3 +193,25 @@ def format_bs_name_column(name_column: pd.Series) -> pd.Series:
     ]
     
     return utils.remove_keywords_from_column(name_column, keywords=BS_NAME_KEYWORDS)
+
+def format_doctor_specialization_column(doctor_specialization_column: pd.Series) -> pd.Series:
+    """Cleans the medical specialty column by removing boilerplate and junk values."""
+
+    DOCTOR_SPECIALIZATION_KEYWORDS = [
+    "(Facharzt)", "(Hausarzt)", "Hausarzt", "Facharzt",
+    "Praktischer Arzt / Hausarzt", "F: ", "0", "unbekannt", "keine Angaben",
+    "Zur freien Verfügung für die KVen (Notfallärzte etc.)",
+    "Zur freien Verfügung für die KVen (Notfallärzte etc)",
+    "Zur freien Verfügung für die KVen", "Sonstige Ärzte", "00", "k.A.",
+    "XXX", "NULL", "nicht referenziert",
+    "KV-interne Kennzeichnung, z.B. Notfallärzte",
+    "Nicht zugeordnet", "ungültiger Wert", "zur freien Verfügung",
+    "ungültige Facharztgruppe", "(SP)", "KV-interne Vergabe", " / "
+    ]
+    
+    cleaned_column = utils.remove_keywords_from_column(
+        doctor_specialization_column, 
+        keywords=DOCTOR_SPECIALIZATION_KEYWORDS
+    )
+
+    return cleaned_column.str.title()
