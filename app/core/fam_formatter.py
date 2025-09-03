@@ -237,3 +237,19 @@ def sync_receipt_and_vo_ids(df: pd.DataFrame) -> pd.DataFrame:
 
     return df.apply(sync_ids_for_single_row, axis=1)
 
+def format_pharmacy_owner_column(pharmacy_owner_column: pd.Series) -> pd.Series:
+    """Cleans the pharmacy owner column by removing boilerplate and junk values."""
+
+    PHARMACY_OWNER_KEYWORDS = [
+    "gGmbH", "GmbH", "e.V.", "e. V.",
+    "e V", "e.V", "eV","B.V.", "OHG", "oHG","e.Kfm",
+    "e. Kfm","e.Kfr.", "#","e.K.","e. K.","eK","e.K",
+    "Inh.","Inhaber"
+    ]
+    
+    cleaned_column = utils.remove_keywords_from_column(
+        pharmacy_owner_column, 
+        keywords=PHARMACY_OWNER_KEYWORDS
+    )
+
+    return cleaned_column.str.title()
