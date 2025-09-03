@@ -272,3 +272,22 @@ def validate_ihpe_units_column(ihpe_units: pd.Series) -> pd.Series:
         else:
             return None
     return ihpe_units.apply(validate_single_ihpe_units)
+
+def validate_kv_district_column(kv_district: pd.Series) -> pd.Series:
+    """
+    Validates a kv_district column to ensure that entries are None or whole number and max 17.
+    """
+
+    def validate_single_kv_district(kv_district):
+        if pd.isna(kv_district):
+            return None
+        try:
+           kv_district_int = int(kv_district)
+        except (ValueError, TypeError):
+            return None
+
+        if kv_district_int >= 0 and kv_district_int <= 17:
+            return kv_district_int
+        else:
+            return None
+    return kv_district.apply(validate_single_kv_district)
