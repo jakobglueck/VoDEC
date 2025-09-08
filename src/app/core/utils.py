@@ -59,7 +59,7 @@ def validate_id_number_column(id_column: pd.Series, required_length: int) -> pd.
         if not id_str.isdigit():
             return None
 
-        if len(id_str) != required_length:
+        if len(id_str) < required_length:
             return None
 
         if re.search(r'(\d)\1{3,}', id_str):
