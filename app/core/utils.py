@@ -6,13 +6,20 @@ from datetime import datetime
 def format_and_clean_name_column(name_column: pd.Series) -> pd.Series:
     """Cleans and formats a column of names (first names, last names)."""
     def clean_single_name(name):
-        if pd.isna(name) or not str(name).strip():
+        if pd.isna(name):
             return None
-        
-        if str(name).strip().isdigit(): 
+
+        name_str = str(name).strip()
+
+        name_str = " ".join(name_str.split())
+
+        if not name_str:
             return None
+        if name_str.isdigit():
+            return None
+            
+        return name_str.title()
         
-        return str(name).title()
     return name_column.apply(clean_single_name)
 
 def validate_plz_column(plz_column: pd.Series) -> pd.Series:
