@@ -2,6 +2,7 @@
 from datetime import datetime
 import re
 import pandas as pd
+from nameparser import HumanName
 
 from model.fam import FAMModel
 from core import utils 
@@ -291,3 +292,18 @@ def validate_kv_district_column(kv_district: pd.Series) -> pd.Series:
         else:
             return None
     return kv_district.apply(validate_single_kv_district)
+
+def split_full_name(full_name: str) -> dict:
+    """
+    Intelligently splits a full name string into its components using the nameparser library.
+    """
+    if pd.isna(full_name) or not str(full_name).strip():
+        return {"title": "", "first_name": "", "last_name": ""}
+
+    name = HumanName(str(full_name))
+
+    return {
+        "title": name.title,
+        "first_name": name.first,
+        "last_name": name.last
+    }
