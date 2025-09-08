@@ -68,27 +68,26 @@ def validate_medicine_name_column(medicine_name: pd.Series) -> pd.Series:
         return str(medicine_name).title()
     return medicine_name.apply(validate_single_medicine_name)
 
-def validate_prescription_date_column(prescription_date: pd.Series) -> pd.Series:
+def validate_prescription_date_column(date_column: pd.Series) -> pd.Series:
     """
-    Validates a column to ensure all entries are in the right time period.
+    Parses, validates, and formats a column of dates.
     """
 
-    def validate_prescription_date(prescription_date):
+    parsed_dates = pd.to_datetime(date_column, format='%d.%m.%Y', errors='coerce')
 
-        parsed_dates = pd.to_datetime(prescription_date, errors='coerce', dayfirst=True)
+    failed_mask = parsed_dates.isna()
+    if failed_mask.any():
+        parsed_dates.loc[failed_mask] = pd.to_datetime(
+            date_column[failed_mask], errors='coerce', dayfirst=True
+        )
 
-        today = pd.Timestamp.now()
-        two_years_ago = today - pd.DateOffset(years=1)
+    today = pd.Timestamp.now()
+    two_years_ago = today - pd.DateOffset(years=2)
+    parsed_dates.loc[(parsed_dates < two_years_ago) | (parsed_dates > today)] = pd.NaT
 
-        parsed_dates.loc[parsed_dates < two_years_ago] = pd.NaT
-        parsed_dates.loc[parsed_dates > today] = pd.NaT
-
-        formatted_dates = parsed_dates.dt.strftime('%d.%m.%Y')
-
-        formatted_dates = formatted_dates.replace({pd.NaT: None})
-
-        return formatted_dates
-    return prescription_date.apply(validate_prescription_date)
+    formatted_dates = parsed_dates.dt.strftime('%d.%m.%Y')
+    
+    return formatted_dates.where(pd.notna(formatted_dates), None)
 
 def validate_medicine_price_column(medicine_price: pd.Series) -> pd.Series:
     """
