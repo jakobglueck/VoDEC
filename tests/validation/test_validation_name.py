@@ -62,3 +62,4 @@ def test_format_name_column_with_extra_whitespace():
     assert result_series[0] == "Max Mustermann"
     assert result_series[1] is None
     assert result_series[2] == "Erika Musterfrau"
+
