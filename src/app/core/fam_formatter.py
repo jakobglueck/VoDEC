@@ -243,7 +243,7 @@ def format_pharmacy_owner_column(pharmacy_owner_column: pd.Series) -> pd.Series:
     PHARMACY_OWNER_KEYWORDS = [
     "gGmbH", "GmbH", "e.V.", "e. V.",
     "e V", "e.V", "eV","B.V.", "OHG", "oHG","e.Kfm",
-    "e. Kfm","e.Kfr.", "#","e.K.","e. K.","eK","e.K",
+    "e. Kfm","e.Kfr.", "#","e.K.","e. K.","e.K",
     "Inh.","Inhaber"
     ]
     
@@ -252,7 +252,7 @@ def format_pharmacy_owner_column(pharmacy_owner_column: pd.Series) -> pd.Series:
         keywords=PHARMACY_OWNER_KEYWORDS
     )
 
-    return cleaned_column.str.title()
+    return cleaned_column
 
 def validate_ihpe_units_column(ihpe_units: pd.Series) -> pd.Series:
     """

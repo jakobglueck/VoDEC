@@ -112,16 +112,18 @@ def remove_keywords_from_column(name_column: pd.Series, keywords: list[str]) -> 
     """
     Generic utility to remove a list of specified keywords from a Series of strings.
     """
-
-    pattern = r'\b(' + '|'.join(re.escape(kw) for kw in keywords) + r')\b'
+    pattern = '|'.join(re.escape(kw) for kw in keywords)
 
     def clean_single_entry(name):
         if pd.isna(name):
             return None
 
+        if str(name).strip().isdigit(): 
+           return None
+
         cleaned_name = re.sub(pattern, '', str(name), flags=re.IGNORECASE)
-      
-        cleaned_name = " ".join(cleaned_name.split()) 
+
+        cleaned_name = " ".join(cleaned_name.split())
         cleaned_name = cleaned_name.strip(' ,-')
         
         return cleaned_name
