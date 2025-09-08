@@ -143,29 +143,27 @@ def validate_doctor_title_column(doctor_title: pd.Series) -> pd.Series:
 
         check_str = str(doctor_title).lower().replace('.', '').replace(' ', '')
 
-        dr_keywords = ('dr', 'doctor', 'mudr', 'md', 'mbbs', 'dott', 'doktor')
+        dr_keywords = ['dr', 'doctor', 'mudr', 'md', 'mbbs', 'dott', 'doktor', 'dr ', 'medico']
         prof_keywords = ('prof', 'professor')
         pd_keywords = ('pd', 'privatdozent', 'priv')
-        drdr_keywords = ('drdr', 'doktordoktor')
 
-        has_dr = any(kw in check_str for kw in dr_keywords)
         has_prof = any(kw in check_str for kw in prof_keywords)
         has_pd = any(kw in check_str for kw in pd_keywords)
-        has_drdr = any(kw in check_str for kw in drdr_keywords)
+
+        dr_pattern = '|'.join(dr_keywords)
+        dr_count = len(re.findall(dr_pattern, check_str, flags=re.IGNORECASE))
 
         if has_prof:
-            if has_drdr:
-                return "Prof. Dr. Dr."
-            else:
-                return "Prof. Dr."
+            if dr_count >= 2: return "Prof. Dr. Dr."
+            if dr_count == 1: return "Prof. Dr."
+            return "Prof. Dr."
         elif has_pd:
-            if has_drdr:
-                return "PD Dr. Dr."
-            else:
-                return "PD Dr."
-        elif has_drdr:
+            if dr_count >= 2: return "PD Dr. Dr."
+            if dr_count == 1: return "PD Dr."
+            return "PD Dr."
+        elif dr_count >= 2:
             return "Dr. Dr."
-        elif has_dr:
+        elif dr_count == 1:
             return "Dr."
         return None
     return doctor_title.apply(validate_single_doctor_title)
