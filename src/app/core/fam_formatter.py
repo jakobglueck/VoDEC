@@ -4,8 +4,8 @@ import re
 import pandas as pd
 from nameparser import HumanName
 
-from model.fam import FAMModel
-from core import utils 
+from app.model.fam import FAMModel
+from app.core import utils 
 
 FAM_HEADER_MAPPING = {
     "kasse": "health_insurance_company",

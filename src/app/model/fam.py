@@ -3,7 +3,7 @@ from pydantic import BaseModel, field_validator
 from datetime import date, datetime
 from decimal import Decimal
 
-from address import AddressModel
+from app.model.address import AddressModel
 
 class FAMModel(BaseModel):
     # --- Required Fields ---

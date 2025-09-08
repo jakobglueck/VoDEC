@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-from model.tm import TMModel
+from app.model.tm import TMModel
 
 TM_HEADER_MAPPING = {
     "VO-ID": "vo_id",
