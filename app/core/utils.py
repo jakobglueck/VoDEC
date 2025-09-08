@@ -75,14 +75,23 @@ def validate_street_column(street_column: pd.Series) -> pd.Series:
         if pd.isna(street) or not str(street).strip():
             return None
 
-        street_str = str(street).strip()
+        street_str = " ".join(str(street).split())
         
         if street_str.isdigit():
             return None
         
-        street_str = re.sub(r'\b(strasse|straße|trasse)\b', 'str.', street_str, flags=re.IGNORECASE)
+        street_str = re.sub(r'(strasse|straße|trasse)\b', 'str.', street_str, flags=re.IGNORECASE)
         
-        return street_str
+        titled_street = street_str.title()
+        
+        # function to ensure that street ads like 1b and 25a are not missleading converted (It stays 1b and not 1B)
+        corrected_street = re.sub(r'(\d)([A-Z])', 
+            lambda m: m.group(1) + m.group(2).lower(), 
+            titled_street
+        )
+        
+        return corrected_street
+
     return street_column.apply(validate_single_plz)
 
 def validate_city_column(city_column: pd.Series) -> pd.Series:
