@@ -1,4 +1,3 @@
-# in app/core/resolvers.py (or a similar utility file)
 import pandas as pd
 from typing import Dict
 
@@ -40,6 +39,8 @@ class KVResolver:
 
                 df_lookup['plz'] = df_lookup['plz'].astype(str)
 
+                df_lookup['kv_code'] = df_lookup['kv_code'].astype(str)
+
                 df_lookup.drop_duplicates(subset='plz', keep='first', inplace=True)
 
                 self.plz_to_kv_code_map = pd.Series(
@@ -52,7 +53,7 @@ class KVResolver:
             except IndexError:
                 raise ValueError("The Excel file needs at least 4 columns (PLZ in A, KV-Code in D).")
 
-    def resolve_kv_column(self, kv_district_column: pd.Series, arzt_postcode_column: pd.Series) -> pd.Series:
+    def resolve_kv_column(self, arzt_postcode_column: pd.Series,  kv_district_column: pd.Series) -> pd.Series:
         """
         Resolves the KV district using the two-step fallback logic.
         """
