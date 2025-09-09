@@ -2,7 +2,7 @@ import pandas as pd
 
 SHEET_NAME = "TM aufbereitet"
 
-def import_fam_sheet(file_path: str) -> pd.DataFrame:
+def import_tm_sheet(file_path: str) -> pd.DataFrame:
     """
     Finds and reads the specified FAM sheet from an Excel file.
     

@@ -1,6 +1,6 @@
 import pandas as pd
 
-SHEET_NAME = "FAM ihpe aufbereitet"
+SHEET_NAME = "FAM ihpE aufbereitet"
 
 def import_fam_sheet(file_path: str) -> pd.DataFrame:
     """
