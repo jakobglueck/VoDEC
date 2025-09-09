@@ -292,15 +292,67 @@ def validate_kv_district_column(kv_district: pd.Series) -> pd.Series:
 
 def split_full_name(full_name: str) -> dict:
     """
-    Intelligently splits a full name string into its components using the nameparser library.
+    Intelligently splits a full name into title, first name, and last name.
+    It first filters out organization names, then extracts complex title blocks
+    before parsing the remaining name.
     """
+
+    ORGANIZATION_KEYWORDS = {
+    'universitäts', 'klinik', 'klinikum', 'zentrum', 'palliativnetz', 
+    'praxis', 'mvz', 'medizinisches', 'versorgungszentrum', 'sapv-team'
+    }
+
+    TITLE_KEYWORDS = {
+    "dr", "doctor", "mudr", "md", "prof", "professor", "pd",
+    "privatdozent", "priv-doz", "med", "dent", "habil", "univ",
+    "vet", "rer", "nat"
+    }
+
+    result = {"title": "", "first_name": "", "last_name": ""}
+    
     if pd.isna(full_name) or not str(full_name).strip():
-        return {"title": "", "first_name": "", "last_name": ""}
+        return result
 
-    name = HumanName(str(full_name))
+    name_str = " ".join(str(full_name).split())
+    name_lower = name_str.lower()
 
-    return {
-        "title": name.title,
-        "first_name": name.first,
+    is_organization = any(keyword in name_lower for keyword in ORGANIZATION_KEYWORDS)
+    if is_organization:
+        result = {
+        "title": None,
+        "first_name": None,
+        "last_name": None
+        }
+        return result
+
+    words = name_str.split()
+    title_parts = []
+    name_words = []
+    parsing_title = True
+    for word in words:
+        cleaned_word = word.lower().replace('.', '')
+        if cleaned_word in TITLE_KEYWORDS and parsing_title:
+            title_parts.append(word)
+        else:
+            parsing_title = False
+            name_words.append(word)
+    
+    title = " ".join(title_parts)
+    remaining_name = " ".join(name_words)
+
+    if not title and len(name_words) == 2 and ',' not in name_str:
+        remaining_name = name_words[0] + ", " + name_words[1]
+
+    if not remaining_name:
+        result["title"] = title
+        return result
+
+    name = HumanName(remaining_name)
+    first_and_middle = " ".join([name.first, name.middle]).strip()
+    
+    result = {
+        "title": title,
+        "first_name": first_and_middle,
         "last_name": name.last
     }
+    return result
