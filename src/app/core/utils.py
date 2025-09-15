@@ -1,4 +1,5 @@
 import re
+import numpy as np
 import pandas as pd
 from datetime import datetime
 
@@ -129,3 +130,47 @@ def remove_keywords_from_column(name_column: pd.Series, keywords: list[str]) -> 
         return cleaned_name
             
     return name_column.apply(clean_single_entry)
+
+def process_charges_and_positions(tm_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates chargen and position numbers using the correct
+    order of operations to handle both patterns and duplicates.
+    """
+    def _calculate_charges_for_group(group: pd.DataFrame) -> pd.DataFrame:
+        """Helper function to determine chargen numbers for a single vo_id group."""
+        pzn_list = group['pzn'].tolist()
+        block_length = 0
+
+        if len(pzn_list) < 2:
+            block_length = 1
+        else:
+            first_pzn = pzn_list[0]
+            try:
+
+                next_occurrence_index = pzn_list[1:].index(first_pzn)
+                block_length = next_occurrence_index + 1
+            except ValueError:
+
+                block_length = len(pzn_list)
+
+        indices = np.arange(len(group))
+        group['charge_nr'] = (indices // block_length) + 1
+        return group
+
+    df = tm_df.copy()
+
+    processed_groups = []
+    for name, group in df.groupby('vo_id'):
+        processed_group = _calculate_charges_for_group(group.copy())
+        processed_groups.append(processed_group)
+
+    if not processed_groups:
+        return pd.DataFrame(columns=df.columns)
+        
+    df = pd.concat(processed_groups)
+
+    df.drop_duplicates(subset=['vo_id', 'charge_nr', 'pzn'], keep='first', inplace=True)
+
+    df['position'] = df.groupby(['vo_id', 'charge_nr']).cumcount() + 1
+    
+    return df
