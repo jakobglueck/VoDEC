@@ -174,3 +174,55 @@ def process_charges_and_positions(tm_df: pd.DataFrame) -> pd.DataFrame:
     df['position'] = df.groupby(['vo_id', 'charge_nr']).cumcount() + 1
     
     return df
+
+def add_validation_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds a 'valid' column to the DataFrame based on a set of business rules.
+
+    A row is considered INVALID if:
+    - patient_nr, pzn, prescription_date, or amount is empty.
+    - medicine_price is missing or not greater than 0.
+    - Both receipt_id and vo_id are empty.
+    - The row is a duplicate based on a key set of columns.
+    """
+
+    df['valid'] = True
+
+    essential_cols = ['patient_nr', 'pzn', 'prescription_date', 'amount']
+    missing_essentials_mask = df[essential_cols].isna().any(axis=1)
+    df.loc[missing_essentials_mask, 'valid'] = False
+
+    numeric_prices = pd.to_numeric(df['medicine_price'], errors='coerce')
+    invalid_price_mask = (numeric_prices.isna()) | (numeric_prices <= 0)
+    
+    df.loc[invalid_price_mask, 'valid'] = False
+
+    missing_both_ids_mask = df['receipt_id'].isna() & df['vo_id'].isna()
+    df.loc[missing_both_ids_mask, 'valid'] = False
+
+    
+    duplicate_check_cols = [
+        'patient_nr', 'pzn', 'medicine_price', 'prescription_date', 
+        'amount', 'receipt_id', 'vo_id'
+    ]
+    duplicate_mask = df.duplicated(subset=duplicate_check_cols, keep=False)
+    df.loc[duplicate_mask, 'valid'] = False
+    
+    return df
+
+def update_medicine_name_for_specific_pzn(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finds rows where the PZN is '9999100' and updates the medicine name
+    for those rows to 'Par. Ernährung (reg.)'.
+    """
+
+    df_processed = df.copy()
+
+    target_pzn = "9999100"
+    new_name = "Par. Ernährung (reg.)"
+
+    mask = (df_processed['pzn'] == target_pzn)
+
+    df_processed.loc[mask, 'medicine_name'] = new_name
+    
+    return df_processed
