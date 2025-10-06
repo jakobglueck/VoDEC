@@ -1,4 +1,5 @@
 import re
+from typing import List
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -224,5 +225,23 @@ def update_medicine_name_for_specific_pzn(df: pd.DataFrame) -> pd.DataFrame:
     mask = (df_processed['pzn'] == target_pzn)
 
     df_processed.loc[mask, 'medicine_name'] = new_name
+    
+    return df_processed
+
+def check_placeholder_or_incorrect_input_characters(df: pd.DataFrame, placeholder: List[str] = None) -> pd.DataFrame:
+    """
+    functions to find invlalid characters and placeholder and remove them
+    """
+    df_processed = df.copy()
+
+    if placeholder is None:
+
+        placeholder = ['?', 'N/A', 'NA', 'NULL', '-', 'Not a Number', '??', '#','##', '#NV', 'XXX', '00', 'Pseudo P', 'Pseudo' , 'Pseudo-Arzt']
+
+    df_processed = df_processed.map(lambda x: x.strip() if isinstance(x, str) else x)
+
+    placeholder = placeholder + ['']
+
+    df_processed.replace(to_replace=placeholder, value=None, inplace=True)
     
     return df_processed
